@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require 'apigee_cli'
+
+require 'thor'
+require 'apigee_cli/cli/thor_cli'
+require 'apigee_cli/cli'
+
+ApigeeCli::Cli.start
