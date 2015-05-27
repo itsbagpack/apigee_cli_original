@@ -5,6 +5,7 @@ module ApigeeCli
     def initialize(environment = nil)
       @username     = ApigeeCli.configuration.username
       @password     = ApigeeCli.configuration.password
+      @org          = ApigeeCli.configuration.org
       @environment  = environment || ApigeeCli.configuration.environment
     end
 
