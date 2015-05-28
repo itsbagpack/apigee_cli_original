@@ -1,3 +1,5 @@
+require 'faraday'
+
 module ApigeeCli
   class Base
     attr_accessor :environment
@@ -21,7 +23,7 @@ module ApigeeCli
       conn.post do |request|
         request.headers['Content-Type'] = "application/octet-stream"
         request.headers['Content-Length'] = File.size(file).to_s
-        request.body = Faraday::UploadIO.new(file, 'test/plain')
+        request.body = Faraday::UploadIO.new(file, 'text/plain')
       end
     end
 
