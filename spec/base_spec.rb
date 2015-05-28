@@ -13,11 +13,13 @@ describe ApigeeCli::Base do
   end
 
   let(:foo) { ApigeeCli::Foo.new }
+  let(:username) { ApigeeCli.configuration.username }
+  let(:password) { ApigeeCli.configuration.password }
   let(:file) { Rack::Test::UploadedFile.new('spec/support/test.txt', 'text/plain') }
 
   describe '#get' do
     it 'performs a get via Faraday::Connection with basic auth' do
-      expect_any_instance_of(Faraday::Connection).to receive :basic_auth
+      expect_any_instance_of(Faraday::Connection).to receive(:basic_auth).with(username, password)
       expect_any_instance_of(Faraday::Connection).to receive :get
 
       foo.get(foo.base_url)
@@ -26,7 +28,7 @@ describe ApigeeCli::Base do
 
   describe '#upload_file' do
     it 'performs a post via Faraday::Connection with basic auth' do
-      expect_any_instance_of(Faraday::Connection).to receive :basic_auth
+      expect_any_instance_of(Faraday::Connection).to receive(:basic_auth).with(username, password)
       expect_any_instance_of(Faraday::Connection).to receive :post
 
       foo.upload_file(foo.base_url, file)
@@ -44,7 +46,7 @@ describe ApigeeCli::Base do
 
   describe '#post' do
     it 'performs a post via Faraday::Connection with basic auth' do
-      expect_any_instance_of(Faraday::Connection).to receive :basic_auth
+      expect_any_instance_of(Faraday::Connection).to receive(:basic_auth).with(username, password)
       expect_any_instance_of(Faraday::Connection).to receive :post
 
       foo.post(foo.base_url, { leslie: 'knope' }.to_json)
@@ -60,7 +62,7 @@ describe ApigeeCli::Base do
 
   describe '#delete' do
     it 'performs a delete via Faraday::Connection with basic auth' do
-      expect_any_instance_of(Faraday::Connection).to receive :basic_auth
+      expect_any_instance_of(Faraday::Connection).to receive(:basic_auth).with(username, password)
       expect_any_instance_of(Faraday::Connection).to receive :delete
 
       foo.delete(foo.base_url)
