@@ -1,3 +1,5 @@
+ENV['RACK_ENV'] = 'test'
+
 require 'apigee_cli'
 require 'rack/test'
 

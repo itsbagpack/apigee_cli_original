@@ -2,7 +2,7 @@ require 'faraday'
 
 module ApigeeCli
   class Base
-    attr_accessor :environment
+    attr_accessor :org, :environment
 
     def initialize(environment = nil)
       @username     = ApigeeCli.configuration.username
