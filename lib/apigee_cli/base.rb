@@ -11,10 +11,12 @@ module ApigeeCli
       @environment  = environment || ApigeeCli.configuration.environment
     end
 
-    def get(url)
+    def get(url, params = {})
       conn = Faraday.new(url: url)
       conn.basic_auth(@username, @password)
-      conn.get
+      conn.get do |request|
+        request.params = params
+      end
     end
 
     def upload_file(url, file)
@@ -31,6 +33,15 @@ module ApigeeCli
       conn = Faraday.new(url: url)
       conn.basic_auth(@username, @password)
       conn.post do |request|
+        request.headers['Content-Type'] = "application/json"
+        request.body = body.to_json
+      end
+    end
+
+    def put(url, body)
+      conn = Faraday.new(url: url)
+      conn.basic_auth(@username, @password)
+      conn.put do |request|
         request.headers['Content-Type'] = "application/json"
         request.body = body.to_json
       end

@@ -8,14 +8,23 @@ describe ApigeeCli::ConfigSet do
 
   let(:base_url)    { "https://api.enterprise.apigee.com/v1/o/#{org}/environments/#{environment}/keyvaluemaps" }
   let(:config_name) { 'configuration' }
+  let(:data) {
+    [{
+       name: 'key_one',
+       value: 'value_one'
+     },
+     {
+       name: 'key_two',
+       value: 'value_two'
+     }]
+  }
+
+  let(:body) { { name: config_name, entry: data } }
 
   let(:key_value_map) {
     {
       keyValueMap: [
-        entry: [{
-          name: 'leslie',
-          value: 'knope'
-        }],
+        entry: data,
         name: 'configuration'
       ]
     }
@@ -33,7 +42,7 @@ describe ApigeeCli::ConfigSet do
 
   describe '#all' do
     it 'GETs a list of all keyvaluemaps' do
-      expect(config_set).to receive(:get).with(base_url).and_return(
+      expect(config_set).to receive(:get).with(base_url, expand: true).and_return(
         Hashie::Mash.new(
           body: key_value_map.to_json,
           status: 200
@@ -72,22 +81,6 @@ describe ApigeeCli::ConfigSet do
 
   describe '#write' do
     it 'POSTs keyvaluemaps for a config_name' do
-      data = [
-        {
-          name: 'key_one',
-          value: 'value_one'
-        },
-        {
-          name: 'key_two',
-          value: 'value_two'
-        }
-      ]
-
-      body = {
-        name: config_name,
-        entry: data
-      }
-
       expect(config_set).to receive(:post).with(base_url, body).and_return(
         Hashie::Mash.new(
           body: key_value_map[:keyValueMap].to_json,
@@ -96,6 +89,21 @@ describe ApigeeCli::ConfigSet do
       )
 
       config_set.write(config_name, data)
+    end
+  end
+
+  describe '#update' do
+    it 'PUTs keyvaluemaps for a config_name' do
+      base_url_with_name = [base_url, config_name].join('/')
+
+      expect(config_set).to receive(:put).with(base_url_with_name, body).and_return(
+        Hashie::Mash.new(
+          body: key_value_map[:keyValueMap].to_json,
+          status: 200
+        )
+      )
+
+      config_set.update(config_name, data)
     end
   end
 

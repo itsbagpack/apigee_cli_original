@@ -20,8 +20,8 @@ module ApigeeCli
     end
 
     def all
-      # TODO: add expand: true option
-      response = get(base_url)
+      # We need the expand: true option to get an expanded view of the KeyValueMaps
+      response = get(base_url, expand: true)
       if response.status != 200
         response_error(response)
       else
@@ -46,6 +46,20 @@ module ApigeeCli
       }
       response = post(base_url, body)
       if response.status != 201
+        response_error(response)
+      else
+        JSON.parse(response.body)
+      end
+    end
+
+    def update(config_name, data)
+      url = [base_url, config_name].join('/')
+      body = {
+        name: config_name,
+        entry: data
+      }
+      response = put(url, body)
+      if response.status != 200
         response_error(response)
       else
         JSON.parse(response.body)
