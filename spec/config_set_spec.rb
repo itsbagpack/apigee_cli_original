@@ -40,7 +40,7 @@ describe ApigeeCli::ConfigSet do
     end
   end
 
-  describe '#all' do
+  describe '#list_configs' do
     it 'GETs a list of all keyvaluemaps' do
       expect(config_set).to receive(:get).with(base_url, expand: true).and_return(
         Hashie::Mash.new(
@@ -49,7 +49,7 @@ describe ApigeeCli::ConfigSet do
         )
       )
 
-      response = config_set.all
+      response = config_set.list_configs
     end
 
     it 'throws an error if response status is not 200' do
@@ -60,11 +60,11 @@ describe ApigeeCli::ConfigSet do
         )
       )
 
-      expect { config_set.all }.to raise_error
+      expect { config_set.list_configs }.to raise_error
     end
   end
 
-  describe '#read' do
+  describe '#read_config' do
     it 'GETs a list of keyvaluemaps at requested config_name' do
       base_url_with_name = [base_url, config_name].join('/')
 
@@ -75,11 +75,11 @@ describe ApigeeCli::ConfigSet do
         )
       )
 
-      response = config_set.read(config_name)
+      response = config_set.read_config(config_name)
     end
   end
 
-  describe '#write' do
+  describe '#write_config' do
     it 'POSTs keyvaluemaps for a config_name' do
       expect(config_set).to receive(:post).with(base_url, body).and_return(
         Hashie::Mash.new(
@@ -88,11 +88,11 @@ describe ApigeeCli::ConfigSet do
         )
       )
 
-      config_set.write(config_name, data)
+      config_set.write_config(config_name, data)
     end
   end
 
-  describe '#update' do
+  describe '#update_config' do
     it 'PUTs keyvaluemaps for a config_name' do
       base_url_with_name = [base_url, config_name].join('/')
 
@@ -103,11 +103,11 @@ describe ApigeeCli::ConfigSet do
         )
       )
 
-      config_set.update(config_name, data)
+      config_set.update_config(config_name, data)
     end
   end
 
-  describe '#remove' do
+  describe '#remove_config' do
     it 'DELETEs keyvaluemaps for a config_name' do
       base_url_with_name = [base_url, config_name].join('/')
 
@@ -118,23 +118,23 @@ describe ApigeeCli::ConfigSet do
         )
       )
 
-      config_set.remove(config_name)
+      config_set.remove_config(config_name)
     end
   end
 
-  describe '#remove_key' do
+  describe '#remove_entry' do
     it 'DELETEs a key from keyvaluemaps for a config_name' do
-      key = 'key_one'
-      base_url_with_name_and_key = [base_url, config_name, 'entries', key].join('/')
+      entry_name = 'key_one'
+      base_url_with_name = [base_url, config_name, 'entries', entry_name].join('/')
 
-      expect(config_set).to receive(:delete).with(base_url_with_name_and_key).and_return(
+      expect(config_set).to receive(:delete).with(base_url_with_name).and_return(
         Hashie::Mash.new(
-          body: key_value_map[:keyValueMap].to_json,
+          body: { name: entry_name, value: data.first[entry_name] }.to_json,
           status: 200
         )
       )
 
-      config_set.remove_key(config_name, key)
+      config_set.remove_entry(config_name, entry_name)
     end
   end
 end

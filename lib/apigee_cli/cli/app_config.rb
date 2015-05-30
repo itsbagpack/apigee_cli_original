@@ -28,7 +28,7 @@ class AppConfig < ThorCli
     config_set  = ApigeeCli::ConfigSet.new
 
     begin
-      orig_config_set = Hashie::Mash.new(config_set.read(config_name))
+      orig_config_set = Hashie::Mash.new(config_set.read_config(config_name))
       orig_keys = orig_config_set[ENTRY_KEY].map { |kv| kv[:name] }
     rescue RuntimeError => e
       render_error(e)
@@ -48,14 +48,14 @@ class AppConfig < ThorCli
   private
 
     def pull_list(config_set)
-      response = Hashie::Mash.new(config_set.all)
+      response = Hashie::Mash.new(config_set.list_configs)
       entries = response[MAP_KEY]
       render_list(entries)
     end
 
     def pull_entry(config_set, config_name)
       begin
-        response = Hashie::Mash.new(config_set.read(config_name))
+        response = Hashie::Mash.new(config_set.read_config(config_name))
         render_entry(config_name, response[ENTRY_KEY])
       rescue RuntimeError => e
         render_error(e)
@@ -65,7 +65,7 @@ class AppConfig < ThorCli
     def update_entry(config_set, config_name, data)
       begin
         changed_keys = data.map { |kv| kv[:name] }
-        response = Hashie::Mash.new(config_set.update(config_name, data))
+        response = Hashie::Mash.new(config_set.update_config(config_name, data))
         render_entry(config_name, response[ENTRY_KEY], changed_keys)
       rescue RuntimeError => e
         render_error(e)
