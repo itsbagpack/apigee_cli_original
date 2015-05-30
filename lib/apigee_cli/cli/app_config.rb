@@ -11,6 +11,8 @@ class AppConfig < ThorCli
     config_name = options[:config_name]
     config_set  = ApigeeCli::ConfigSet.new(environment)
 
+    # TODO: pull into .env file
+
     if config_name
       pull_config(config_set, config_name)
     else
@@ -19,7 +21,7 @@ class AppConfig < ThorCli
   end
 
   desc 'push', 'Push up keyvaluemaps to Apigee server'
-  option :config_name, type: :string
+  option :config_name, type: :string, required: true
   option :overwrite, type: :boolean, default: false
   def push(*entries)
     config_name = options[:config_name]
@@ -54,8 +56,12 @@ class AppConfig < ThorCli
 
     config_set  = ApigeeCli::ConfigSet.new
 
+    #TODO: invoke read of that config_name before deletion
+
     if entry_name
+      remove_entry(config_set, config_name, entry_name)
     else
+      remove_config(config_set, config_name)
     end
   end
 
@@ -63,8 +69,7 @@ class AppConfig < ThorCli
 
     def pull_list(config_set)
       response = Hashie::Mash.new(config_set.list_configs)
-      entries = response[MAP_KEY]
-      render_list(entries)
+      render_list(response[MAP_KEY])
     end
 
     def pull_config(config_set, config_name)
@@ -81,6 +86,26 @@ class AppConfig < ThorCli
         changed_keys = data.map { |kv| kv[:name] }
         response = Hashie::Mash.new(config_set.update_config(config_name, data))
         render_config(config_name, response[ENTRY_KEY], changed_keys)
+      rescue RuntimeError => e
+        render_error(e)
+      end
+    end
+
+    def remove_config(config_set, config_name)
+      begin
+        response = Hashie::Mash.new(config_set.remove_config(config_name))
+        say("Config #{config_name} has been deleted from #{environment} environment", :red)
+        render_config(config_name, response[ENTRY_KEY])
+      rescue RuntimeError => e
+        render_error(e)
+      end
+    end
+
+    def remove_entry(config_set, config_name, entry_name)
+      begin
+        response = Hashie::Mash.new(config_set.remove_entry(config_name, entry_name))
+        say("Entry #{entry_name} has been deleted from #{config_name} in #{environment} environment", :red)
+        render_entry(response)
       rescue RuntimeError => e
         render_error(e)
       end
@@ -107,14 +132,17 @@ class AppConfig < ThorCli
       say("Environment: #{environment}, Config Name: #{config_name}", :blue)
       entries.each do |entry|
         name  = entry['name']
-        value = entry['value']
+        color = highlight.include?(name) ? :yellow : :green
 
-        if highlight.include?(name)
-          say("\s\s#{name}: #{value}", :yellow)
-        else
-          say("\s\s#{name}: #{value}", :green)
-        end
+        render_entry(entry, color)
       end
+    end
+
+    def render_entry(entry, color = :green)
+      name  = entry['name']
+      value = entry['value']
+
+      say("\s\s#{name}: #{value}", color)
     end
 
     def render_error(error)
