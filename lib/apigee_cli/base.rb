@@ -1,10 +1,13 @@
+require 'faraday'
+
 module ApigeeCli
   class Base
-    attr_accessor :environment
+    attr_accessor :org, :environment
 
     def initialize(environment = nil)
       @username     = ApigeeCli.configuration.username
       @password     = ApigeeCli.configuration.password
+      @org          = ApigeeCli.configuration.org
       @environment  = environment || ApigeeCli.configuration.environment
     end
 
@@ -20,7 +23,7 @@ module ApigeeCli
       conn.post do |request|
         request.headers['Content-Type'] = "application/octet-stream"
         request.headers['Content-Length'] = File.size(file).to_s
-        request.body = Faraday::UploadIO.new(file, 'test/plain')
+        request.body = Faraday::UploadIO.new(file, 'text/plain')
       end
     end
 
