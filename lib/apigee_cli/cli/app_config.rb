@@ -27,7 +27,7 @@ class AppConfig < ThorCli
     config_name = options[:config_name]
     overwrite   = options[:overwrite]
 
-    config_set  = ApigeeCli::ConfigSet.new
+    config_set  = ApigeeCli::ConfigSet.new(environment)
 
     begin
       orig_config_set = Hashie::Mash.new(config_set.read_config(config_name))
@@ -54,7 +54,7 @@ class AppConfig < ThorCli
     config_name = options[:config_name]
     entry_name  = options[:entry_name]
 
-    config_set  = ApigeeCli::ConfigSet.new
+    config_set  = ApigeeCli::ConfigSet.new(environment)
 
     #TODO: invoke read of that config_name before deletion
 
