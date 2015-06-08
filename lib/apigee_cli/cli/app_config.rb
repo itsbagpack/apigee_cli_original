@@ -1,17 +1,16 @@
 class AppConfig < ThorCli
   namespace 'config'
-  default_task :pull
+  default_task :list
 
   MAP_KEY   = 'keyValueMap'
   ENTRY_KEY = 'entry'
+  DEFAULT_CONFIG_NAME = 'configuration'
 
-  desc 'pull', 'Pulls down keyvaluemaps from Apigee server'
+  desc 'list', 'Pulls down keyvaluemaps from Apigee server'
   option :config_name, type: :string
-  def pull
+  def list
     config_name = options[:config_name]
     config_set  = ApigeeCli::ConfigSet.new(environment)
-
-    # TODO: pull into .env file
 
     if config_name
       pull_config(config_set, config_name)
@@ -21,11 +20,11 @@ class AppConfig < ThorCli
   end
 
   desc 'push', 'Push up keyvaluemaps to Apigee server'
-  option :config_name, type: :string, required: true
+  option :config_name, type: :string, default: DEFAULT_CONFIG_NAME
   option :overwrite, type: :boolean, default: false
   def push(*entries)
     config_name = options[:config_name]
-    overwrite   = options[:overwrite]
+    overwrite   = options[:overwrite] || false
 
     config_set  = ApigeeCli::ConfigSet.new(environment)
 
@@ -48,7 +47,7 @@ class AppConfig < ThorCli
   end
 
   desc 'delete', 'Delete keyvaluemaps for [config_name] from Apigee server'
-  option :config_name, type: :string, required: true
+  option :config_name, type: :string, default: DEFAULT_CONFIG_NAME
   option :entry_name, type: :string
   def delete
     config_name = options[:config_name]

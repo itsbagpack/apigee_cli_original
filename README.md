@@ -36,23 +36,17 @@ Or install it yourself as:
 
 ### Configuration Settings on Apigee Server
 
-    # Pull down configs for an environment (default is test)
-    apigee config pull
-
-    # Pull down configs for a selected environment
-    apigee config pull [--environment=staging|-e=staging]
+    # Pull down configs for a selected environment (default is test)
+    apigee config list [--environment=staging|-e=staging]
 
     # Pull down configs for a selected config_name
-    apigee config pull --config_name=configuration_one
+    apigee config list --config_name=configuration_one
 
-    # Update config key-value pair (requires config_name)
-    apigee config push --config_name=configuration_one key_one=value_one
-
-    # Update config key-value pair (requires config_name) for a selected environment
-    apigee config push --config_name=configuration_one key_one=value_one [--environment=staging|-e=staging]
+    # Update config key-value pair (default environment is test, default config_name is configuration)
+    apigee config push key_one=value_one [--environment=staging|-e=staging] [--config_name=configuration_one]
 
     # Overwrite existing config key-value pair
-    apigee config push --config_name=configuration_one --overwrite=true key_one=changed_value_one
+    apigee config push --overwrite=true key_one=changed_value_one [--environment=staging|-e=staging] [--config_name=configuration_one]
 
     # Delete config key-value pair
     apigee config delete --config_name=configuration_one --entry_name=key_one
