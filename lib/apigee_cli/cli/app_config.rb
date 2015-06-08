@@ -19,7 +19,7 @@ class AppConfig < ThorCli
     end
   end
 
-  desc 'push', 'Push up keyvaluemaps to Apigee server'
+  desc 'push', 'Push up keyvaluemaps for [config_name] to Apigee server'
   option :config_name, type: :string, default: DEFAULT_CONFIG_NAME
   option :overwrite, type: :boolean, default: false
   def push(*entries)

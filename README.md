@@ -1,6 +1,6 @@
 # ApigeeCli
 
-TODO: Write a gem description
+An API Wrapper and CLI for Apigee
 
 ## Installation
 
@@ -36,23 +36,29 @@ Or install it yourself as:
 
 ### Configuration Settings on Apigee Server
 
-    # Pull down configs for a selected environment (default is test)
-    apigee config list [--environment=staging|-e=staging]
+## apigee config list
 
-    # Pull down configs for a selected config_name
-    apigee config list --config_name=configuration_one
+    # List configs for default environment of test
+    $ apigee config list
+
+    # List config for a particular config_name in an environment
+    $ apigee config list [--environment=staging|-e=staging] [--config_name=configuration_one]
+
+## apigee config push
 
     # Update config key-value pair (default environment is test, default config_name is configuration)
-    apigee config push key_one=value_one [--environment=staging|-e=staging] [--config_name=configuration_one]
+    $ apigee config push key_one=value_one
 
     # Overwrite existing config key-value pair
-    apigee config push --overwrite=true key_one=changed_value_one [--environment=staging|-e=staging] [--config_name=configuration_one]
+    $ apigee config push key_one=changed_value_one --overwrite=true [--environment=staging|-e=staging] [--config_name=configuration_one]
 
-    # Delete config key-value pair
-    apigee config delete --config_name=configuration_one --entry_name=key_one
+## apigee config delete
+
+    # Delete config key-value pair (default config_name is configuration)
+    $ apigee config delete --entry_name=key_one
 
     # Delete config for that config_name
-    apigee config delete --config_name=configuration_one
+    $ apigee config delete --config_name=configuration_one
 
 ## Contributing
 
