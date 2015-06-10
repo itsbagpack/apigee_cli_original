@@ -3,7 +3,7 @@ class ThorCli < Thor
 
   no_commands do
     def environment
-      options[:environment] || 'production'
+      options[:environment] || 'test'
     end
   end
 end

@@ -40,7 +40,7 @@ describe ApigeeCli::Base do
 
       expect(request_headers['Content-Type']).to eq 'application/octet-stream'
       expect(request_headers['Content-Length']).to eq File.size(file).to_s
-      # TODO: check requesty body? it is currently an empty string...
+      # TODO: check request body? it is currently an empty string...
     end
   end
 

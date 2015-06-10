@@ -1,6 +1,6 @@
 # ApigeeCli
 
-TODO: Write a gem description
+An API Wrapper and CLI for Apigee
 
 ## Installation
 
@@ -18,20 +18,47 @@ Or install it yourself as:
 
 ## Commands
 
-    apigee deleteproxy      # Delete a proxy or node app
-    apigee deploy           # Deploy a proxy
-    apigee fetchproxy       # Download a proxy as a zip file
-    apigee getlogs          # Retrieve the last set of logs from a Node app
-    apigee help [COMMAND]   # Describe available commands or one specific command
-    apigee listdeployments  # List all the deployments for a given environment
-    apigee nodedeploy       # Deploy a node app
-    apigee settings         # Show the current apigeerc settings
-    apigee undeploy         # Undeploy a proxy or node app
-    apigee version          # Shows the Apigee CLI version number
+### Top level commands
+
+    Commands:
+      apigee apigeetool [COMMAND]  # Run a command using the apigeetool Node.js module
+      apigee config [COMMAND]      # Run a command within the context of an app configuration
+      apigee help [COMMAND]        # Describe available commands or one specific command
+      apigee settings              # Show the current apigeerc settings
+      apigee version               # Shows the Apigee CLI version number
+
+### To see sublevel commands, you can run:
+
+    apigee help apigeetool
+    apigee help config
 
 ## Usage
 
-TODO: Write usage instructions here
+### Configuration Settings on Apigee Server
+
+## apigee config list
+
+    # List configs for default environment of test
+    $ apigee config list
+
+    # List config for a particular config_name in an environment
+    $ apigee config list [--environment=staging|-e=staging] [--config_name=configuration_one]
+
+## apigee config push
+
+    # Update config key-value pair (default environment is test, default config_name is configuration)
+    $ apigee config push key_one=value_one
+
+    # Overwrite existing config key-value pair
+    $ apigee config push key_one=changed_value_one --overwrite=true [--environment=staging|-e=staging] [--config_name=configuration_one]
+
+## apigee config delete
+
+    # Delete config key-value pair (default config_name is configuration)
+    $ apigee config delete --entry_name=key_one
+
+    # Delete config for that config_name
+    $ apigee config delete --config_name=configuration_one
 
 ## Contributing
 

@@ -4,6 +4,8 @@ require 'apigee_cli'
 
 require 'thor'
 require 'apigee_cli/cli/thor_cli'
+require 'apigee_cli/cli/app_config'
+require 'apigee_cli/cli/apigee_tool'
 require 'apigee_cli/cli'
 
 ApigeeCli::Cli.start
