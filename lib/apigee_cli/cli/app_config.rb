@@ -39,7 +39,7 @@ class AppConfig < ThorCli
     data = populate_data(orig_keys, entries, overwrite)
 
     if data.empty?
-      say("No keys were changed", :red)
+      say "No keys were changed", :red
       render_config(config_name, orig_config_set[ENTRY_KEY])
     else
       update_config(config_set, config_name, data)
@@ -55,11 +55,17 @@ class AppConfig < ThorCli
 
     config_set  = ApigeeCli::ConfigSet.new(environment)
 
-    #TODO: invoke read of that config_name before deletion
+    pull_list(config_set)
 
     if entry_name
+      confirm = yes? "Are you sure you want to delete #{entry_name} from #{config_name} in #{environment} environment?"
+      return if !confirm
+
       remove_entry(config_set, config_name, entry_name)
     else
+      confirm = yes? "Are you sure you want to delete #{config_name} from #{environment} environment?"
+      return if !confirm
+
       remove_config(config_set, config_name)
     end
   end
@@ -93,7 +99,7 @@ class AppConfig < ThorCli
     def remove_config(config_set, config_name)
       begin
         response = Hashie::Mash.new(config_set.remove_config(config_name))
-        say("Config #{config_name} has been deleted from #{environment} environment", :red)
+        say "Config #{config_name} has been deleted from #{environment} environment", :red
         render_config(config_name, response[ENTRY_KEY])
       rescue RuntimeError => e
         render_error(e)
@@ -103,7 +109,7 @@ class AppConfig < ThorCli
     def remove_entry(config_set, config_name, entry_name)
       begin
         response = Hashie::Mash.new(config_set.remove_entry(config_name, entry_name))
-        say("Entry #{entry_name} has been deleted from #{config_name} in #{environment} environment", :red)
+        say "Entry #{entry_name} has been deleted from #{config_name} in #{environment} environment", :red
         render_entry(response)
       rescue RuntimeError => e
         render_error(e)
@@ -128,7 +134,7 @@ class AppConfig < ThorCli
     end
 
     def render_config(config_name, entries, highlight = [])
-      say("Environment: #{environment}, Config Name: #{config_name}", :blue)
+      say "Environment: #{environment}, Config Name: #{config_name}", :blue
       entries.each do |entry|
         name  = entry['name']
         color = highlight.include?(name) ? :yellow : :green
@@ -141,10 +147,10 @@ class AppConfig < ThorCli
       name  = entry['name']
       value = entry['value']
 
-      say("\s\s#{name}: #{value}", color)
+      say "\s\s#{name}: #{value}", color
     end
 
     def render_error(error)
-      say(error, :red)
+      say error, :red
     end
 end

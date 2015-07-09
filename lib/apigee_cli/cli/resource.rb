@@ -52,7 +52,9 @@ class Resource < ThorCli
 
     resource = ApigeeCli::ResourceFile.new(environment)
 
-    if resource_name
+    confirm = yes? "Are you sure you want to delete #{resource_name} from #{org}?"
+
+    if confirm && resource_name
       puts "Deleting current resource for #{resource_name}"
       resource.remove(resource_name, resource_type)
     end
