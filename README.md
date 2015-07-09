@@ -31,6 +31,7 @@ Or install it yourself as:
 
     apigee help apigeetool
     apigee help config
+    apigee help resource
 
 ## Usage
 
@@ -59,6 +60,20 @@ Or install it yourself as:
 
     # Delete config for that config_name
     $ apigee config delete --config_name=configuration_one
+
+### Resource Files on Apigee Server
+
+## apigee resource list
+
+[To be filled in]
+
+## apigee resource push
+
+[To be filled in]
+
+## apigee resource delete
+
+[To be filled in]
 
 ## Contributing
 

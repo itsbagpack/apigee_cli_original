@@ -5,5 +5,9 @@ class ThorCli < Thor
     def environment
       options[:environment] || 'test'
     end
+
+    def org
+      options[:org] || 'bellycard'
+    end
   end
 end

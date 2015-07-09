@@ -5,8 +5,7 @@ module ApigeeCli
     end
 
     def all(resource_type = nil)
-      url = [base_url,resource_type].join('/')
-      response = get(url)
+      response = get(base_url)
       if response.status != 200
         response_error(response)
       else

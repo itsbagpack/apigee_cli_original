@@ -2,6 +2,7 @@ class Resource < ThorCli
   namespace 'resource'
   default_task :list
 
+  RESOURCE_FILE_KEY = 'resourceFile'
   DEFAULT_RESOURCE_TYPE = 'jsc'
 
   desc 'list', 'List resource files'
@@ -15,8 +16,9 @@ class Resource < ThorCli
 
     if resource_name
       resource.read(resource_name, resource_type)
+      # TODO: this returns the content of the file - should we save this?
     else
-      resource.all(resource_type)
+      pull_list(resource, resource_type)
     end
   end
 
@@ -25,6 +27,7 @@ class Resource < ThorCli
   def upload
     resource_type = options[:resource_type]
 
+    # TODO: how do we ensure that the resource files are in /jsc folder ?
     files = Dir.entries("jsc").select{ |f| f =~ /.js$/ }
 
     resource = ApigeeCli::ResourceFile.new(environment)
@@ -54,4 +57,21 @@ class Resource < ThorCli
       resource.remove(resource_name, resource_type)
     end
   end
+
+  private
+
+    def pull_list(resource, resource_type)
+      response = Hashie::Mash.new(resource.all(resource_type))
+      render_list(response[RESOURCE_FILE_KEY])
+    end
+
+    def render_list(resource_files)
+      say("Resource files for #{org}", :blue)
+      resource_files.each do |resource_file|
+        name = resource_file['name']
+        type = resource_file['type']
+
+        say("\s\s#{type} file - #{name}", :green)
+      end
+    end
 end
