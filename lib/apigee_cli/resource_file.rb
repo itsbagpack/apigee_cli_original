@@ -1,7 +1,7 @@
 module ApigeeCli
   class ResourceFile < Base
     def base_url
-      "https://api.enterprise.apigee.com/v1/organizations/#{ENV['org']}/resourcefiles"
+      "https://api.enterprise.apigee.com/v1/organizations/#{org}/resourcefiles"
     end
 
     def all(resource_type = nil)
