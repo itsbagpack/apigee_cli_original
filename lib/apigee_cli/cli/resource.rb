@@ -4,6 +4,7 @@ class Resource < ThorCli
 
   RESOURCE_FILE_KEY = 'resourceFile'
   DEFAULT_RESOURCE_TYPE = 'jsc'
+  DEFAULT_FOLDER = "#{ENV['HOME']}/.apigee_resources"
 
   desc 'list', 'List resource files'
   option :resource_type, type: :string, default: DEFAULT_RESOURCE_TYPE
@@ -29,21 +30,22 @@ class Resource < ThorCli
 
   desc 'upload', 'Upload resource files'
   option :resource_type, type: :string, default: DEFAULT_RESOURCE_TYPE
+  option :resource_folder, type: :string, default: DEFAULT_FOLDER
   def upload
     resource_type = options[:resource_type]
+    resource_folder = options[:resource_folder]
 
-    # TODO: how do we ensure that the resource files are in /jsc folder ?
-    files = Dir.entries("jsc").select{ |f| f =~ /.js$/ }
+    files = Dir.entries("#{resource_folder}").select{ |f| f =~ /.js$/ }
 
     resource = ApigeeCli::ResourceFile.new(environment)
 
     files.each do |file|
       if resource.read(file, resource_type)
-        puts "Deleting current resource for #{file}"
+        say "Deleting current resource for #{file}", :red
         resource.remove(file, resource_type)
       end
 
-      puts "Creating resource for #{file}"
+      say "Creating resource for #{file}", :green
       resource.create(file, resource_type, "jsc/#{file}")
     end
   end
@@ -60,7 +62,7 @@ class Resource < ThorCli
     confirm = yes? "Are you sure you want to delete #{resource_name} from #{org}?"
 
     if confirm && resource_name
-      puts "Deleting current resource for #{resource_name}"
+      say "Deleting current resource for #{resource_name}", :red
       resource.remove(resource_name, resource_type)
     end
   end
@@ -73,12 +75,12 @@ class Resource < ThorCli
     end
 
     def render_list(resource_files)
-      say("Resource files for #{org}", :blue)
+      say "Resource files for #{org}", :blue
       resource_files.each do |resource_file|
         name = resource_file['name']
         type = resource_file['type']
 
-        say("\s\s#{type} file - #{name}", :green)
+        say "\s\s#{type} file - #{name}", :green
       end
     end
 end
