@@ -4,7 +4,7 @@ module ApigeeCli
       "https://api.enterprise.apigee.com/v1/organizations/#{org}/resourcefiles"
     end
 
-    def all(resource_type = nil)
+    def all
       response = get(base_url)
       if response.status != 200
         response_error(response)

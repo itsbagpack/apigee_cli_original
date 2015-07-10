@@ -1,3 +1,5 @@
+require 'thor'
+
 class ThorCli < Thor
   class_option :environment, aliases: [:env, :e]
 
@@ -7,7 +9,7 @@ class ThorCli < Thor
     end
 
     def org
-      options[:org] || 'bellycard'
+      'bellycard'
     end
   end
 end

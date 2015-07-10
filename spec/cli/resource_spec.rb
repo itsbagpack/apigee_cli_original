@@ -1,8 +1,64 @@
 require 'spec_helper'
+require 'apigee_cli/cli/resource'
+
+#   desc "four", "invoke four"
+#   option :defaulted_value, :type => :string, :default => 'default'
+#   def four
+#     options.defaulted_value
+#   end
+#
+#     it "allows customized options to be given" do
+#       base = A.new([], :last_name => "Wrong")
+#       expect(base.invoke(B, :one, %w[Jose], :last_name => "Valim")).to eq("Valim, Jose")
+#     end
+#
+#     it "reparses options in the new class" do
+#       expect(A.start(%w[invoker --last-name Valim])).to eq("Valim, Jose")
+#     end
+#
+# class B < Thor
+#   class_option :last_name, :type => :string
+#
+#   desc "one FIRST_NAME", "invoke one"
+#   def one(first_name)
+#     "#{options.last_name}, #{first_name}"
+#   end
+#
+#   desc "two", "invoke two"
+#   def two
+#     options
+#   end
 
 RSpec.describe Resource do
   describe 'apigee resource list' do
-    it 'prints the names of the files, by default'
+    it 'prints the names of the files, by default' do
+      resource = Resource.new([])
+      allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:all).and_return({
+        "resourceFile" => [
+          { "name" => "lodash.js", "type" => "jsc" },
+          { "name" => "honeybadger.js", "type" => "jsc" }
+        ]
+      })
+
+      resource.shell = Class.new {
+        def say(message, color)
+          printed << message
+        end
+
+        def printed
+          @printed ||= []
+        end
+      }.new
+
+      resource.invoke(:list)
+
+      expect(resource.shell.printed).to eq [
+        "Resource files for bellycard",
+        "  jsc file - lodash.js",
+        "  jsc file - honeybadger.js"
+      ]
+    end
+
     it 'prints the content of the file for the requested --name'
   end
 
