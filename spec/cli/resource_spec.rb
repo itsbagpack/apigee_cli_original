@@ -30,6 +30,18 @@ require 'apigee_cli/cli/resource'
 #   end
 
 RSpec.describe Resource do
+  def recorder
+    Class.new {
+      def say(message, color=nil)
+        printed << message
+      end
+
+      def printed
+        @printed ||= []
+      end
+    }.new
+  end
+
   describe 'apigee resource list' do
     it 'prints the names of the files, by default' do
       resource = Resource.new([])
@@ -40,15 +52,7 @@ RSpec.describe Resource do
         ]
       })
 
-      resource.shell = Class.new {
-        def say(message, color)
-          printed << message
-        end
-
-        def printed
-          @printed ||= []
-        end
-      }.new
+      resource.shell = recorder
 
       resource.invoke(:list)
 
@@ -59,7 +63,18 @@ RSpec.describe Resource do
       ]
     end
 
-    it 'prints the content of the file for the requested --name'
+    it 'prints the content of the file for the requested --name' do
+      resource = Resource.new([], resource_name: 'test.js')
+      allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:read)
+        .with('test.js', 'jsc')
+        .and_return("Hello World")
+
+      resource.shell = recorder
+
+      resource.invoke(:list)
+
+      expect(resource.shell.printed).to eq ['Hello World']
+    end
   end
 
   describe 'apigee resource upload' do
