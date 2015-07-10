@@ -29,19 +29,17 @@ require 'apigee_cli/cli/resource'
 #     options
 #   end
 
-RSpec.describe Resource do
-  def recorder
-    Class.new {
-      def say(message, color=nil)
-        printed << message
-      end
-
-      def printed
-        @printed ||= []
-      end
-    }.new
+class ShellRecorder
+  def say(message, color=nil)
+    printed << message
   end
 
+  def printed
+    @printed ||= []
+  end
+end
+
+RSpec.describe Resource do
   describe 'apigee resource list' do
     it 'prints the names of the files, by default' do
       resource = Resource.new([])
@@ -52,7 +50,7 @@ RSpec.describe Resource do
         ]
       })
 
-      resource.shell = recorder
+      resource.shell = ShellRecorder.new
 
       resource.invoke(:list)
 
@@ -69,7 +67,7 @@ RSpec.describe Resource do
         .with('test.js', 'jsc')
         .and_return("Hello World")
 
-      resource.shell = recorder
+      resource.shell = ShellRecorder.new
 
       resource.invoke(:list)
 
