@@ -47,6 +47,9 @@ Or install it yourself as:
 
 ## apigee config push
 
+    # Create config key-value map
+    $ apigee config push --config_name=new_config
+
     # Update config key-value pair (default environment is test, default config_name is configuration)
     $ apigee config push key_one=value_one
 
@@ -65,15 +68,21 @@ Or install it yourself as:
 
 ## apigee resource list
 
-[To be filled in]
+    # List resource files for organization
+    $ apigee resource list
 
-## apigee resource push
+    # Get resource file with resource_name
+    $ apigee resource list --resource_name=testing.js
 
-[To be filled in]
+## apigee resource upload
+
+    # Upload resource files from resource_folder (default is ~/.apigee_resources)
+    $ apigee resource upload --resource_folder=jsc
 
 ## apigee resource delete
 
-[To be filled in]
+    # Delete resource file of resource_name
+    $ apigee resource delete --resource_name=testing.js
 
 ## Contributing
 
