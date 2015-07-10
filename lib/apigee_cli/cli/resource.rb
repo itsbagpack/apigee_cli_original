@@ -15,8 +15,13 @@ class Resource < ThorCli
     resource = ApigeeCli::ResourceFile.new(environment)
 
     if resource_name
-      resource.read(resource_name, resource_type)
-      # TODO: this returns the content of the file - should we save this?
+      response = resource.read(resource_name, resource_type)
+
+      file_name = ask "What would you like to name this file?"
+
+      File.open(file_name, 'w') do |file|
+        file.write(response)
+      end
     else
       pull_list(resource, resource_type)
     end

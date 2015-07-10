@@ -31,18 +31,23 @@ class AppConfig < ThorCli
     begin
       orig_config_set = Hashie::Mash.new(config_set.read_config(config_name))
       orig_keys = orig_config_set[ENTRY_KEY].map { |entry| entry[:name] }
+      data = populate_data(orig_keys, entries, overwrite)
+
+      if data.empty?
+        say "No keys were changed", :red
+        render_config(config_name, orig_config_set[ENTRY_KEY])
+      else
+        update_config(config_set, config_name, data)
+      end
     rescue RuntimeError => e
-      render_error(e)
-      exit
-    end
-
-    data = populate_data(orig_keys, entries, overwrite)
-
-    if data.empty?
-      say "No keys were changed", :red
-      render_config(config_name, orig_config_set[ENTRY_KEY])
-    else
-      update_config(config_set, config_name, data)
+      if e.message.include?('keyvaluemap_doesnt_exist')
+        data = populate_data([], entries, false)
+        config_set.write_config(config_name, data)
+        pull_config(config_set, config_name)
+      else
+        render_error(e)
+        exit
+      end
     end
   end
 
