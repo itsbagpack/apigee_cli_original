@@ -74,12 +74,24 @@ RSpec.describe Resource do
 
       resource.invoke(:list)
 
-      expect(resource.shell.printed).to eq ['Hello World']
+      expect(resource.shell.printed).to eq ["Hello World"]
     end
   end
 
   describe 'apigee resource upload' do
-    it 'uploads the files in --folder to the Apigee server'
+    it 'uploads the files in --folder to the Apigee server' do
+      resource = Resource.new([], resource_folder: File.expand_path('../fixtures', __dir__))
+      allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:upload).and_return(:new_file)
+
+      resource.shell = ShellRecorder.new
+
+      resource.invoke(:upload)
+
+      expect(resource.shell.printed).to eq [
+        "Creating resource for test.js",
+        "Creating resource for test2.js"
+      ]
+    end
 
     it 'ignores files without a .js extension'
     specify 'when the folder exists, it deletes it before uploading'

@@ -30,18 +30,17 @@ class Resource < ThorCli
   def upload
     resource_folder = options[:resource_folder]
 
-    files = Dir.entries("#{resource_folder}").select{ |f| f =~ /.js$/ }
+    files = Dir.entries(resource_folder).select{ |f| f =~ /.js$/ }
 
     resource = ApigeeCli::ResourceFile.new(environment)
 
     files.each do |file|
-      if resource.read(file, DEFAULT_RESOURCE_TYPE)
+      result = resource.upload file, DEFAULT_RESOURCE_TYPE, "jsc/#{file}"
+      if result == :overwritten
         say "Deleting current resource for #{file}", :red
-        resource.remove(file, DEFAULT_RESOURCE_TYPE)
+      elsif result == :new_file
+        say "Creating resource for #{file}", :green
       end
-
-      say "Creating resource for #{file}", :green
-      resource.create(file, DEFAULT_RESOURCE_TYPE, "jsc/#{file}")
     end
   end
 
