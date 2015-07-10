@@ -1,5 +1,8 @@
 require 'spec_helper'
 require 'apigee_cli/base'
+require 'webmock'
+
+include WebMock::API
 
 describe ApigeeCli::Base do
   before do
@@ -15,7 +18,7 @@ describe ApigeeCli::Base do
   let(:foo) { ApigeeCli::Foo.new }
   let(:username) { ApigeeCli.configuration.username }
   let(:password) { ApigeeCli.configuration.password }
-  let(:file) { Rack::Test::UploadedFile.new('spec/support/test.txt', 'text/plain') }
+  let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/test.txt', 'text/plain') }
 
   describe '#get' do
     it 'performs a get via Faraday::Connection with basic auth' do
@@ -28,6 +31,10 @@ describe ApigeeCli::Base do
 
   describe '#upload_file' do
     it 'performs a post via Faraday::Connection with basic auth' do
+      stub_request(:post, "http://example_user:password@foos.com/")
+         .with(:body => "\"{\\\"leslie\\\":\\\"knope\\\"}\"",
+              :headers => {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Content-Type'=>'application/json', 'User-Agent'=>'Faraday v0.9.1'})
+         .to_return(:status => 200, :body => "", :headers => {})
       expect_any_instance_of(Faraday::Connection).to receive(:basic_auth).with(username, password)
       expect_any_instance_of(Faraday::Connection).to receive :post
 
@@ -35,6 +42,11 @@ describe ApigeeCli::Base do
     end
 
     it 'appends the right headers to the request' do
+      stub_request(:post, "http://example_user:password@foos.com/")
+         .with(:body => "This is a test.\n",
+              :headers => {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Content-Length'=>'16', 'Content-Type'=>'application/octet-stream', 'User-Agent'=>'Faraday v0.9.1'})
+         .to_return(:status => 200, :body => "", :headers => {})
+
       result = foo.upload_file(foo.base_url, file)
       request_headers = result.env.request_headers
 
