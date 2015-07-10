@@ -17,5 +17,8 @@ module ApigeeCli
 
     desc 'apigeetool [COMMAND]', 'Run a command using the apigeetool Node.js module'
     subcommand 'apigeetool', ::ApigeeTool
+
+    desc 'resource [COMMAND]', 'Run a command within the context of a resource'
+    subcommand 'resource', ::Resource
   end
 end
