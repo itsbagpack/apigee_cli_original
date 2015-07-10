@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'apigee_cli/cli/resource'
+require 'webmock'
 
 #   desc "four", "invoke four"
 #   option :defaulted_value, :type => :string, :default => 'default'
@@ -28,6 +29,8 @@ require 'apigee_cli/cli/resource'
 #   def two
 #     options
 #   end
+
+WebMock.disable_net_connect!
 
 class ShellRecorder
   def say(message, color=nil)
@@ -77,6 +80,7 @@ RSpec.describe Resource do
 
   describe 'apigee resource upload' do
     it 'uploads the files in --folder to the Apigee server'
+
     it 'ignores files without a .js extension'
     specify 'when the folder exists, it deletes it before uploading'
   end
