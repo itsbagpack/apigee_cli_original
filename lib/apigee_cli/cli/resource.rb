@@ -11,14 +11,14 @@ class Resource < ThorCli
   DEFAULT_FOLDER = "#{ENV['HOME']}/.apigee_resources"
 
   desc 'list', 'List resource files'
-  option :resource_name, type: :string
+  option :name, type: :string
   def list
-    resource_name = options[:resource_name]
+    name = options[:name]
 
     resource = ApigeeCli::ResourceFile.new(environment)
 
-    if resource_name
-      response = resource.read(resource_name, DEFAULT_RESOURCE_TYPE)
+    if name
+      response = resource.read(name, DEFAULT_RESOURCE_TYPE)
       say response
     else
       pull_list(resource)
@@ -26,11 +26,11 @@ class Resource < ThorCli
   end
 
   desc 'upload', 'Upload resource files'
-  option :resource_folder, type: :string, default: DEFAULT_FOLDER
+  option :folder, type: :string, default: DEFAULT_FOLDER
   def upload
-    resource_folder = options[:resource_folder]
+    folder = options[:folder]
 
-    files = Dir.entries(resource_folder).select{ |f| f =~ /.js$/ }
+    files = Dir.entries(folder).select{ |f| f =~ /.js$/ }
 
     resource = ApigeeCli::ResourceFile.new(environment)
 
@@ -45,16 +45,16 @@ class Resource < ThorCli
   end
 
   desc 'delete', 'Delete resource file'
-  option :resource_name, type: :string
+  option :name, type: :string, required: true
   def delete
-    resource_name = options[:resource_name]
+    name = options[:name]
 
     resource = ApigeeCli::ResourceFile.new(environment)
 
-    confirm = yes? "Are you sure you want to delete #{resource_name} from #{org}? [y/n]"
+    confirm = yes? "Are you sure you want to delete #{name} from #{org}? [y/n]"
 
-    if confirm && resource_name
-      say "Deleting current resource for #{resource_name}", :red
+    if confirm
+      say "Deleting current resource for #{name}", :red
       resource.remove(resource_name, DEFAULT_RESOURCE_TYPE)
     end
   end

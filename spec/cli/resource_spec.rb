@@ -52,7 +52,7 @@ RSpec.describe Resource do
     end
 
     it 'prints the content of the file for the requested --name' do
-      resource = Resource.new([], resource_name: 'test.js')
+      resource = Resource.new([], name: 'test.js')
       allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:read)
         .with('test.js', 'jsc')
         .and_return("Hello World")
@@ -67,7 +67,7 @@ RSpec.describe Resource do
 
   describe 'apigee resource upload' do
     it 'uploads the files in --folder to the Apigee server' do
-      resource = Resource.new([], resource_folder: File.expand_path('../fixtures', __dir__))
+      resource = Resource.new([], folder: File.expand_path('../fixtures', __dir__))
       allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:upload).and_return(:new_file)
 
       resource.shell = ShellRecorder.new
