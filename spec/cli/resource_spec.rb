@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'apigee_cli/cli/resource'
-require 'webmock'
 
 #   desc "four", "invoke four"
 #   option :defaulted_value, :type => :string, :default => 'default'
@@ -29,8 +28,6 @@ require 'webmock'
 #   def two
 #     options
 #   end
-
-WebMock.disable_net_connect!
 
 class ShellRecorder
   def say(message, color=nil)

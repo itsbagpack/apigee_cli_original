@@ -2,6 +2,11 @@ ENV['RACK_ENV'] = 'test'
 
 require 'apigee_cli'
 require 'rack/test'
+require 'webmock'
+
+include WebMock::API
+
+WebMock.disable_net_connect!
 
 RSpec.configure do |config|
   config.before(:each) do

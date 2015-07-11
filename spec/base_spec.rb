@@ -1,8 +1,5 @@
 require 'spec_helper'
 require 'apigee_cli/base'
-require 'webmock'
-
-include WebMock::API
 
 describe ApigeeCli::Base do
   before do
