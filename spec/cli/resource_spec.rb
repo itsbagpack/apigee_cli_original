@@ -29,16 +29,6 @@ require 'apigee_cli/cli/resource'
 #     options
 #   end
 
-class ShellRecorder
-  def say(message, color=nil)
-    printed << message
-  end
-
-  def printed
-    @printed ||= []
-  end
-end
-
 RSpec.describe Resource do
   describe 'apigee resource list' do
     it 'prints the names of the files, by default' do
@@ -91,6 +81,7 @@ RSpec.describe Resource do
     end
 
     it 'ignores files without a .js extension'
+
     specify 'when the folder exists, it deletes it before uploading'
   end
 

@@ -16,3 +16,13 @@ RSpec.configure do |config|
     allow_any_instance_of(ApigeeCli::Configuration).to receive(:org).and_return('example_org')
   end
 end
+
+class ShellRecorder
+  def say(message, color=nil)
+    printed << message
+  end
+
+  def printed
+    @printed ||= []
+  end
+end
