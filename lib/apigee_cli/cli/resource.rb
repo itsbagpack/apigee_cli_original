@@ -54,8 +54,13 @@ class Resource < ThorCli
     confirm = yes? "Are you sure you want to delete #{name} from #{org}? [y/n]"
 
     if confirm
-      say "Deleting current resource for #{name}", :red
-      resource.remove(resource_name, DEFAULT_RESOURCE_TYPE)
+      begin
+        say "Deleting current resource for #{name}", :red
+        resource.remove(name, DEFAULT_RESOURCE_TYPE)
+      rescue RuntimeError => e
+        render_error(e)
+        exit
+      end
     end
   end
 
@@ -74,5 +79,9 @@ class Resource < ThorCli
 
         say "  #{type} file - #{name}", :green
       end
+    end
+
+    def render_error(error)
+      say error.to_s, :red
     end
 end

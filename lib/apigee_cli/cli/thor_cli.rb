@@ -9,7 +9,7 @@ class ThorCli < Thor
     end
 
     def org
-      'bellycard'
+      options[:org] || 'bellycard'
     end
   end
 end

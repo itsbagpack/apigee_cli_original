@@ -1,46 +1,17 @@
 require 'spec_helper'
 require 'apigee_cli/cli/resource'
 
-#   desc "four", "invoke four"
-#   option :defaulted_value, :type => :string, :default => 'default'
-#   def four
-#     options.defaulted_value
-#   end
-#
-#     it "allows customized options to be given" do
-#       base = A.new([], :last_name => "Wrong")
-#       expect(base.invoke(B, :one, %w[Jose], :last_name => "Valim")).to eq("Valim, Jose")
-#     end
-#
-#     it "reparses options in the new class" do
-#       expect(A.start(%w[invoker --last-name Valim])).to eq("Valim, Jose")
-#     end
-#
-# class B < Thor
-#   class_option :last_name, :type => :string
-#
-#   desc "one FIRST_NAME", "invoke one"
-#   def one(first_name)
-#     "#{options.last_name}, #{first_name}"
-#   end
-#
-#   desc "two", "invoke two"
-#   def two
-#     options
-#   end
-
-RSpec.describe Resource do
+describe Resource do
   describe 'apigee resource list' do
     it 'prints the names of the files, by default' do
       resource = Resource.new([])
+      resource.shell = ShellRecorder.new
       allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:all).and_return({
         "resourceFile" => [
           { "name" => "lodash.js", "type" => "jsc" },
           { "name" => "honeybadger.js", "type" => "jsc" }
         ]
       })
-
-      resource.shell = ShellRecorder.new
 
       resource.invoke(:list)
 
@@ -53,11 +24,10 @@ RSpec.describe Resource do
 
     it 'prints the content of the file for the requested --name' do
       resource = Resource.new([], name: 'test.js')
+      resource.shell = ShellRecorder.new
       allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:read)
         .with('test.js', 'jsc')
         .and_return("Hello World")
-
-      resource.shell = ShellRecorder.new
 
       resource.invoke(:list)
 
@@ -68,9 +38,8 @@ RSpec.describe Resource do
   describe 'apigee resource upload' do
     it 'uploads only .js files in --folder to the Apigee server' do
       resource = Resource.new([], folder: File.expand_path('../fixtures', __dir__))
-      allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:upload).and_return(:new_file)
-
       resource.shell = ShellRecorder.new
+      allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:upload).and_return(:new_file)
 
       resource.invoke(:upload)
 
@@ -83,9 +52,8 @@ RSpec.describe Resource do
 
     specify 'when the file exists, it deletes it before uploading' do
       resource = Resource.new([], folder: File.expand_path('../fixtures', __dir__))
-      allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:upload).and_return(:overwritten)
-
       resource.shell = ShellRecorder.new
+      allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:upload).and_return(:overwritten)
 
       resource.invoke(:upload)
 
@@ -97,15 +65,54 @@ RSpec.describe Resource do
   end
 
   describe 'apigee resource delete' do
-    it 'requires the --name of the file to delete'
+    it 'requires the --name of the file to delete' do
+      resource = Resource.new([])
+
+      expect {
+        resource.invoke(:delete)
+      }.to raise_error Thor::RequiredArgumentMissingError
+    end
 
     context 'when user gives permission to delete the file' do
-      it 'deletes the file if it exists'
-      it 'does ?? when the file doesn\'t exist on the server'
+      it 'deletes the file if it exists' do
+        resource = Resource.new([], name: 'test3.js')
+        resource.shell = ShellRecorder.new
+        allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:remove)
+          .with('test3.js', 'jsc')
+          .and_return("Deleted")
+        allow(resource.shell).to receive(:yes?).and_return(true)
+
+        resource.invoke(:delete)
+
+        expect(resource.shell.printed).to eq [
+          "Deleting current resource for test3.js"
+        ]
+      end
+
+      it 'renders an error when the file doesn\'t exist on the server' do
+        resource = Resource.new([], name: 'test3.js')
+        resource.shell = ShellRecorder.new
+        allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:remove).and_raise("Resource already exists")
+        allow(resource.shell).to receive(:yes?).and_return(true)
+
+        expect {
+          resource.invoke(:delete)
+        }.to raise_error SystemExit
+
+        expect(resource.shell.printed).to include "Resource already exists"
+      end
     end
 
     context 'when user doesn\'t give permission to delete the file' do
-      it 'doesn\'t delete the file'
+      it 'doesn\'t delete the file' do
+        resource = Resource.new([], name: 'test3.js')
+        resource.shell = ShellRecorder.new
+        allow(resource.shell).to receive(:yes?).and_return(false)
+
+        expect_any_instance_of(ApigeeCli::ResourceFile).to_not receive(:remove)
+
+        resource.invoke(:delete)
+      end
     end
   end
 end
