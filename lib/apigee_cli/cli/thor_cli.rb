@@ -1,3 +1,5 @@
+require 'thor'
+
 class ThorCli < Thor
   class_option :environment, aliases: [:env, :e]
 

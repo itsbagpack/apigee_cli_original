@@ -1,76 +1,70 @@
+require 'apigee_cli/cli/thor_cli'
+
 class Resource < ThorCli
   namespace 'resource'
   default_task :list
 
   RESOURCE_FILE_KEY = 'resourceFile'
   DEFAULT_RESOURCE_TYPE = 'jsc'
-  DEFAULT_FOLDER = "#{ENV['HOME']}/.apigee_resources"
 
   desc 'list', 'List resource files'
-  option :resource_type, type: :string, default: DEFAULT_RESOURCE_TYPE
-  option :resource_name, type: :string
+  option :name, type: :string
   def list
-    resource_type = options[:resource_type]
-    resource_name = options[:resource_name]
+    name = options[:name]
 
     resource = ApigeeCli::ResourceFile.new(environment)
 
-    if resource_name
-      response = resource.read(resource_name, resource_type)
-
-      file_name = ask "What would you like to name this file?"
-
-      File.open(file_name, 'w') do |file|
-        file.write(response)
-      end
+    if name
+      response = resource.read(name, DEFAULT_RESOURCE_TYPE)
+      say response
     else
-      pull_list(resource, resource_type)
+      pull_list(resource)
     end
   end
 
   desc 'upload', 'Upload resource files'
-  option :resource_type, type: :string, default: DEFAULT_RESOURCE_TYPE
-  option :resource_folder, type: :string, default: DEFAULT_FOLDER
+  option :folder, type: :string, required: true
   def upload
-    resource_type = options[:resource_type]
-    resource_folder = options[:resource_folder]
+    folder = options[:folder]
 
-    files = Dir.entries("#{resource_folder}").select{ |f| f =~ /.js$/ }
+    files = Dir.entries(folder).select{ |f| f =~ /.js$/ }
 
     resource = ApigeeCli::ResourceFile.new(environment)
 
     files.each do |file|
-      if resource.read(file, resource_type)
+      result = resource.upload file, DEFAULT_RESOURCE_TYPE, "jsc/#{file}"
+      if result == :overwritten
         say "Deleting current resource for #{file}", :red
-        resource.remove(file, resource_type)
+      elsif result == :new_file
+        say "Creating resource for #{file}", :green
       end
-
-      say "Creating resource for #{file}", :green
-      resource.create(file, resource_type, "jsc/#{file}")
     end
   end
 
   desc 'delete', 'Delete resource file'
-  option :resource_type, type: :string, default: DEFAULT_RESOURCE_TYPE
-  option :resource_name, type: :string
+  option :name, type: :string, required: true
   def delete
-    resource_type = options[:resource_type]
-    resource_name = options[:resource_name]
+    name = options[:name]
 
     resource = ApigeeCli::ResourceFile.new(environment)
 
-    confirm = yes? "Are you sure you want to delete #{resource_name} from #{org}? [y/n]"
+    confirm = yes? "Are you sure you want to delete #{name} from #{org}? [y/n]"
 
-    if confirm && resource_name
-      say "Deleting current resource for #{resource_name}", :red
-      resource.remove(resource_name, resource_type)
+    if confirm
+      begin
+        say "Deleting current resource for #{name}", :red
+        resource.remove(name, DEFAULT_RESOURCE_TYPE)
+      rescue RuntimeError => e
+        render_error(e)
+        exit
+      end
     end
   end
 
   private
 
-    def pull_list(resource, resource_type)
-      response = Hashie::Mash.new(resource.all(resource_type))
+    def pull_list(resource)
+      response = Hashie::Mash.new(resource.all)
       render_list(response[RESOURCE_FILE_KEY])
     end
 
@@ -80,7 +74,11 @@ class Resource < ThorCli
         name = resource_file['name']
         type = resource_file['type']
 
-        say "\s\s#{type} file - #{name}", :green
+        say "  #{type} file - #{name}", :green
       end
+    end
+
+    def render_error(error)
+      say error.to_s, :red
     end
 end

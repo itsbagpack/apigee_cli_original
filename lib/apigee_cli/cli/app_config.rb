@@ -156,6 +156,6 @@ class AppConfig < ThorCli
     end
 
     def render_error(error)
-      say error, :red
+      say error.to_s, :red
     end
 end

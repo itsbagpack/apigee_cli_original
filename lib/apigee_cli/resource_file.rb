@@ -4,7 +4,7 @@ module ApigeeCli
       "https://api.enterprise.apigee.com/v1/organizations/#{org}/resourcefiles"
     end
 
-    def all(resource_type = nil)
+    def all
       response = get(base_url)
       if response.status != 200
         response_error(response)
@@ -43,6 +43,17 @@ module ApigeeCli
       else
         JSON.parse(response.body)
       end
+    end
+
+    def upload(name, resource_type, file)
+      if read(file, resource_type)
+        result = :overwritten
+        remove(file, resource_type)
+      else
+        result = :new_file
+      end
+      create(file, resource_type, file)
+      result
     end
 
   end
