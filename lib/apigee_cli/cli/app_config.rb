@@ -1,3 +1,5 @@
+require 'apigee_cli/cli/thor_cli'
+
 class AppConfig < ThorCli
   namespace 'config'
   default_task :list
