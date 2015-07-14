@@ -7,9 +7,6 @@ class Resource < ThorCli
   RESOURCE_FILE_KEY = 'resourceFile'
   DEFAULT_RESOURCE_TYPE = 'jsc'
 
-  # TODO: is there really a use case for .apigee_resources?
-  DEFAULT_FOLDER = "#{ENV['HOME']}/.apigee_resources"
-
   desc 'list', 'List resource files'
   option :name, type: :string
   def list
@@ -26,7 +23,7 @@ class Resource < ThorCli
   end
 
   desc 'upload', 'Upload resource files'
-  option :folder, type: :string, default: DEFAULT_FOLDER
+  option :folder, type: :string, required: true
   def upload
     folder = options[:folder]
 

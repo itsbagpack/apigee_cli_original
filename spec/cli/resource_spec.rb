@@ -36,6 +36,14 @@ describe Resource do
   end
 
   describe 'apigee resource upload' do
+    it 'requires the --folder from which to upload files' do
+      resource = Resource.new([])
+
+      expect {
+        resource.invoke(:upload)
+      }.to raise_error Thor::RequiredArgumentMissingError
+    end
+
     it 'uploads only .js files in --folder to the Apigee server' do
       resource = Resource.new([], folder: File.expand_path('../fixtures', __dir__))
       resource.shell = ShellRecorder.new
