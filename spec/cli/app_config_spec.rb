@@ -56,15 +56,28 @@ describe AppConfig do
   end
 
   describe 'apigee config push' do
+    let(:config_name) { 'test_config' }
+
+    before do
+      allow_any_instance_of(ApigeeCli::ConfigSet).to receive(:read_config).with(config_name).and_return({
+        "entry" => [ { "name" => "key_a", "value" => "value_a" },
+                     { "name" => "key_b", "value" => "value_b" }
+                   ],
+        "name" => config_name
+      })
+    end
+
     context 'when key value map with --config_name doesn\'t exist' do
-      before do
-        allow_any_instance_of(ApigeeCli::ConfigSet).to receive(:read_config).and_raise(RuntimeError, "keyvaluemap_doesnt_exist")
-      end
-
       it 'creates a new key value map' do
-        app_config = AppConfig.new([], config_name: 'teehee')
+        app_config = AppConfig.new([], config_name: config_name)
         app_config.shell = ShellRecorder.new
+        allow_any_instance_of(ApigeeCli::ConfigSet).to receive(:add_config).and_return([
+          :new, [:key_one]
+        ])
 
+        app_config.invoke(:push)
+
+        expect(app_config.shell.printed).to include "Creating new config for [#{config_name}] in [test] environment"
       end
     end
 

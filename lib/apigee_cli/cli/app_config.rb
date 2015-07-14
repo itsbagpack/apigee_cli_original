@@ -42,8 +42,7 @@ class AppConfig < ThorCli
       say "Overwriting existing config #{config_name} in #{environment} environment"
     end
 
-    response       = config_set.read_config(config_name)
-    updated_config = Hashie::Mash.new(response[ApigeeCli::ConfigSet::ENTRY_KEY])
+    updated_config = config_set.read_config(config_name)[ApigeeCli::ConfigSet::ENTRY_KEY]
 
     render_config(config_name, updated_config, changed_keys)
   end
