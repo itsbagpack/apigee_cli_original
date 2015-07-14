@@ -80,8 +80,12 @@ class AppConfig < ThorCli
   private
 
     def pull_list(config_set)
-      response = Hashie::Mash.new(config_set.list_configs)
-      render_list(response[MAP_KEY])
+      begin
+        response = Hashie::Mash.new(config_set.list_configs)
+        render_list(response[MAP_KEY])
+      rescue RuntimeError => e
+        render_error(e)
+      end
     end
 
     def pull_config(config_set, config_name)

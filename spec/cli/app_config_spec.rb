@@ -43,6 +43,16 @@ describe AppConfig do
         "  key_b: value_b"
       ]
     end
+
+    specify 'when config does not exist on Apigee Server, an error is rendered' do
+      app_config = AppConfig.new([])
+      app_config.shell = ShellRecorder.new
+      allow_any_instance_of(ApigeeCli::ConfigSet).to receive(:list_configs).and_raise("Map does not exist")
+
+      app_config.invoke(:list)
+
+      expect(app_config.shell.printed).to eq ["Map does not exist"]
+    end
   end
 
   describe 'apigee config push' do
