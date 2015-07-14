@@ -56,13 +56,26 @@ describe AppConfig do
   end
 
   describe 'apigee config push' do
-    context 'when key value map with --config_name exists' do
-      it 'creates a new key value map'
+    context 'when key value map with --config_name doesn\'t exist' do
+      before do
+        allow_any_instance_of(ApigeeCli::ConfigSet).to receive(:read_config).and_raise(RuntimeError, "keyvaluemap_doesnt_exist")
+      end
+
+      it 'creates a new key value map' do
+        app_config = AppConfig.new([], config_name: 'teehee')
+        app_config.shell = ShellRecorder.new
+
+      end
     end
 
     context 'when key value map with --config_name exists' do
-      it 'allows you to push up a new key value pair'
-      specify 'when a key value pair exists'
+      context 'when a key value pair exists' do
+        it 'gets replaced with new key value pair if --overwrite=true'
+      end
+
+      context 'when a key value pair doesn\'t exist' do
+        it 'gets added to the key value map'
+      end
     end
   end
 

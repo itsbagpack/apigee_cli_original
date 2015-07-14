@@ -1,6 +1,10 @@
 module ApigeeCli
   class ConfigSet < Base
 
+    MAP_KEY             = 'keyValueMap'
+    ENTRY_KEY           = 'entry'
+    DEFAULT_CONFIG_NAME = 'configuration'
+
     class << self
       def parse_filename(config_filename)
         filename_parts = config_filename.gsub(/.json$/,'').split('_')
@@ -64,6 +68,35 @@ module ApigeeCli
       else
         JSON.parse(response.body)
       end
+    end
+
+    def add_config(config_name, data, overwrite)
+      changed_keys = []
+
+      begin
+        response = Hashie::Mash.new(read_config(config_name))
+        if overwrite
+          result = :overwritten
+          update_config(config_name, data)
+        else
+          orig_keys = response[ENTRY_KEY].map(&:name)
+          data.reject! { |pair| orig_keys.include?(pair['name']) }
+
+          result = :existing
+          update_config(config_name, data)
+        end
+      rescue RuntimeError => e
+        if e.message.include?('keyvaluemap_doesnt_exist')
+          result = :new
+          write_config(config_name, data)
+        else
+          changed_keys = [e.to_s]
+          result = :error
+        end
+      end
+
+      changed_keys = data.map(&:name)
+      [result, changed_keys]
     end
 
     def remove_config(config_name)
