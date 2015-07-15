@@ -5,20 +5,6 @@ module ApigeeCli
     ENTRY_KEY           = 'entry'
     DEFAULT_CONFIG_NAME = 'configuration'
 
-    class << self
-      def parse_filename(config_filename)
-        filename_parts = config_filename.gsub(/.json$/,'').split('_')
-
-        OpenStruct.new(
-          {
-            filename: config_filename,
-            environment: filename_parts.last,
-            name: filename_parts.slice(0, filename_parts.length - 1).join('_')
-          }
-        )
-      end
-    end
-
     def base_url
       "https://api.enterprise.apigee.com/v1/o/#{org}/environments/#{environment}/keyvaluemaps"
     end
