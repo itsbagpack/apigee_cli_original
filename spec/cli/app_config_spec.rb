@@ -83,12 +83,46 @@ describe AppConfig do
 
     context 'when key value map with --config_name exists' do
       context 'when a key value pair exists' do
-        it 'gets replaced with new key value pair if --overwrite=true'
+        it 'gets replaced with new key value pair if --overwrite=true' do
+          app_config = AppConfig.new([], config_name: config_name, overwrite: true)
+          app_config.shell = ShellRecorder.new
+          allow_any_instance_of(ApigeeCli::ConfigSet).to receive(:add_config).and_return([
+            :overwritten, [:key_a]
+          ])
+
+          app_config.invoke(:push, ["key_a=new_value_a"])
+
+          expect(app_config.shell.printed).to include "Overwriting existing config [#{config_name}] in [test] environment"
+        end
       end
 
       context 'when a key value pair doesn\'t exist' do
-        it 'gets added to the key value map'
+        it 'gets added to the key value map' do
+          app_config = AppConfig.new([], config_name: config_name)
+          app_config.shell = ShellRecorder.new
+          allow_any_instance_of(ApigeeCli::ConfigSet).to receive(:add_config).and_return([
+            :existing, [:key_one]
+          ])
+
+          app_config.invoke(:push, ["key_one=value_one"])
+
+          expect(app_config.shell.printed).to include "Adding new keys [:key_one] to config [#{config_name}] in [test] environment"
+        end
       end
+    end
+
+    it 'renders an error when there was an error trying to update config' do
+      app_config = AppConfig.new([], config_name: config_name)
+      app_config.shell = ShellRecorder.new
+      allow_any_instance_of(ApigeeCli::ConfigSet).to receive(:add_config).and_return([
+        :error, ["There was an error"]
+      ])
+
+      expect {
+        app_config.invoke(:push, ["key_a=new_value"])
+      }.to raise_error SystemExit
+
+      expect(app_config.shell.printed).to include "Error [There was an error] pushing config for [test_config] to [test] environment"
     end
   end
 

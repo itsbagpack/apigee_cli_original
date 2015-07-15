@@ -37,9 +37,9 @@ class AppConfig < ThorCli
     if result == :new
       say "Creating new config for [#{config_name}] in [#{environment}] environment"
     elsif result == :existing
-      say "Adding new keys #{changed_keys} to config #{config_name} in #{environment} environment"
+      say "Adding new keys #{changed_keys} to config [#{config_name}] in [#{environment}] environment"
     elsif result == :overwritten
-      say "Overwriting existing config #{config_name} in #{environment} environment"
+      say "Overwriting existing config [#{config_name}] in [#{environment}] environment"
     end
 
     updated_config = config_set.read_config(config_name)[ApigeeCli::ConfigSet::ENTRY_KEY]
