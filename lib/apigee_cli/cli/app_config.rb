@@ -94,8 +94,7 @@ class AppConfig < ThorCli
     def remove_config(config_set, config_name)
       begin
         response = Hashie::Mash.new(config_set.remove_config(config_name))
-        say "Config #{config_name} has been deleted from #{environment} environment", :red
-        render_config(config_name, response[ApigeeCli::ConfigSet::ENTRY_KEY])
+        say "Config [#{config_name}] has been deleted from [#{environment}] environment", :red
       rescue RuntimeError => e
         render_error(e)
       end
@@ -104,8 +103,7 @@ class AppConfig < ThorCli
     def remove_entry(config_set, config_name, entry_name)
       begin
         response = Hashie::Mash.new(config_set.remove_entry(config_name, entry_name))
-        say "Entry #{entry_name} has been deleted from #{config_name} in #{environment} environment", :red
-        render_entry(response)
+        say "Entry [#{entry_name}] has been deleted from [#{config_name}] in [#{environment}] environment", :red
       rescue RuntimeError => e
         render_error(e)
       end

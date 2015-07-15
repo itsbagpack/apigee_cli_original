@@ -127,5 +127,41 @@ describe AppConfig do
   end
 
   describe 'apigee config delete' do
+    let(:config_name) { ApigeeCli::ConfigSet::DEFAULT_CONFIG_NAME }
+    before do
+      allow_any_instance_of(ApigeeCli::ConfigSet).to receive(:list_configs).and_return({
+        "keyValueMap" => [
+          { "entry" => [ { "name" => "key_one", "value" => "value_one" },
+                         { "name" => "key_two", "value" => "value_two" }
+                       ],
+            "name" => "#{config_name}"
+          }
+        ]
+      })
+    end
+
+    context 'when user gives permission' do
+      it 'deletes --config_name=configuration key value map by default' do
+        app_config = AppConfig.new([])
+        app_config.shell = ShellRecorder.new
+        allow_any_instance_of(ApigeeCli::ConfigSet).to receive(:remove_config).with(config_name).and_return({
+          "entry" => [],
+          "name" => "#{config_name}"
+        })
+        allow(app_config.shell).to receive(:yes?).and_return(true)
+
+        app_config.invoke(:delete)
+
+        expect(app_config.shell.printed).to include "Config [#{config_name}] has been deleted from [test] environment"
+      end
+
+      it 'deletes --entry_name entry from --config_name key value map'
+      it 'renders an error when there was an error updating a config on the server'
+    end
+
+    context 'when user doesn\'t give permission' do
+      it 'doesn\'t delete the --config_name key value map'
+      it 'doesn\'t delete the --entry_name entry from --config_name key value map'
+    end
   end
 end
