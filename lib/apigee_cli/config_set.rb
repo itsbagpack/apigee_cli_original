@@ -63,14 +63,14 @@ module ApigeeCli
         response = Hashie::Mash.new(read_config(config_name))
         if overwrite
           result = :overwritten
-          update_config(config_name, data)
         else
           orig_keys = response[ENTRY_KEY].map(&:name)
           data.reject! { |pair| orig_keys.include?(pair['name']) }
 
           result = :existing
-          update_config(config_name, data)
         end
+
+        update_config(config_name, data)
       rescue RuntimeError => e
         if e.message.include?('keyvaluemap_doesnt_exist')
           result = :new

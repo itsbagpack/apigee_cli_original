@@ -55,6 +55,8 @@ class Resource < ThorCli
         render_error(e)
         exit
       end
+    else
+      exit
     end
   end
 
