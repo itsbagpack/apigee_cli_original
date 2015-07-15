@@ -60,12 +60,12 @@ class AppConfig < ThorCli
 
     if entry_name
       confirm = yes? "Are you sure you want to delete #{entry_name} from #{config_name} in #{environment} environment? [y/n]"
-      return if !confirm
+      exit if !confirm
 
       remove_entry(config_set, config_name, entry_name)
     else
       confirm = yes? "Are you sure you want to delete #{config_name} from #{environment} environment? [y/n]"
-      return if !confirm
+      exit if !confirm
 
       remove_config(config_set, config_name)
     end

@@ -146,7 +146,7 @@ describe AppConfig do
         app_config.shell = ShellRecorder.new
         allow_any_instance_of(ApigeeCli::ConfigSet).to receive(:remove_config).with(config_name).and_return({
           "entry" => [],
-          "name" => "#{config_name}"
+          "name"  => "#{config_name}"
         })
         allow(app_config.shell).to receive(:yes?).and_return(true)
 
@@ -155,13 +155,48 @@ describe AppConfig do
         expect(app_config.shell.printed).to include "Config [#{config_name}] has been deleted from [test] environment"
       end
 
-      it 'deletes --entry_name entry from --config_name key value map'
-      it 'renders an error when there was an error updating a config on the server'
+      it 'deletes --entry_name entry from --config_name key value map' do
+        entry_name = "key_one"
+        app_config = AppConfig.new([], entry_name: entry_name)
+        app_config.shell = ShellRecorder.new
+        allow_any_instance_of(ApigeeCli::ConfigSet).to receive(:remove_entry).with(config_name, entry_name).and_return({
+          "name"  => "key_one",
+          "value" => "value_one"
+        })
+        allow(app_config.shell).to receive(:yes?).and_return(true)
+
+        app_config.invoke(:delete)
+
+        expect(app_config.shell.printed).to include "Entry [key_one] has been deleted from [configuration] in [test] environment"
+      end
+
+      it 'renders an error when there was an error updating a config on the server' do
+        app_config = AppConfig.new([])
+        app_config.shell = ShellRecorder.new
+        allow_any_instance_of(ApigeeCli::ConfigSet).to receive(:remove_config).and_raise("Error deleting #{config_name}")
+        allow(app_config.shell).to receive(:yes?).and_return(true)
+
+        app_config.invoke(:delete)
+
+        expect(app_config.shell.printed).to include "Error deleting #{config_name}"
+      end
     end
 
     context 'when user doesn\'t give permission' do
-      it 'doesn\'t delete the --config_name key value map'
-      it 'doesn\'t delete the --entry_name entry from --config_name key value map'
+      it 'doesn\'t delete the --config_name key value map' do
+        app_config = AppConfig.new([])
+        app_config.shell = ShellRecorder.new
+        allow(app_config.shell).to receive(:yes?).and_return(false)
+
+        expect_any_instance_of(ApigeeCli::ConfigSet).to_not receive :remove_config
+
+        expect {
+          app_config.invoke(:delete)
+        }.to raise_error SystemExit
+      end
+
+      it 'doesn\'t delete the --entry_name entry from --config_name key value map' do
+      end
     end
   end
 end
