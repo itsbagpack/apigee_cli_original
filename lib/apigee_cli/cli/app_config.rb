@@ -1,10 +1,8 @@
+require 'apigee_cli/cli/thor_cli'
+
 class AppConfig < ThorCli
   namespace 'config'
   default_task :list
-
-  MAP_KEY   = 'keyValueMap'
-  ENTRY_KEY = 'entry'
-  DEFAULT_CONFIG_NAME = 'configuration'
 
   desc 'list', 'Pulls down keyvaluemaps from Apigee server'
   option :config_name, type: :string
@@ -20,7 +18,7 @@ class AppConfig < ThorCli
   end
 
   desc 'push', 'Push up keyvaluemaps for [config_name] to Apigee server'
-  option :config_name, type: :string, default: DEFAULT_CONFIG_NAME
+  option :config_name, type: :string, default: ApigeeCli::ConfigSet::DEFAULT_CONFIG_NAME
   option :overwrite, type: :boolean, default: false
   def push(*entries)
     config_name = options[:config_name]
@@ -28,31 +26,29 @@ class AppConfig < ThorCli
 
     config_set  = ApigeeCli::ConfigSet.new(environment)
 
-    begin
-      orig_config_set = Hashie::Mash.new(config_set.read_config(config_name))
-      orig_keys = orig_config_set[ENTRY_KEY].map { |entry| entry[:name] }
-      data = populate_data(orig_keys, entries, overwrite)
+    data = populate_data(entries)
+    result, changed_keys = config_set.add_config(config_name, data, overwrite)
 
-      if data.empty?
-        say "No keys were changed", :red
-        render_config(config_name, orig_config_set[ENTRY_KEY])
-      else
-        update_config(config_set, config_name, data)
-      end
-    rescue RuntimeError => e
-      if e.message.include?('keyvaluemap_doesnt_exist')
-        data = populate_data([], entries, false)
-        config_set.write_config(config_name, data)
-        pull_config(config_set, config_name)
-      else
-        render_error(e)
-        exit
-      end
+    if result == :error
+      say "Error [#{changed_keys.first}] pushing config for [#{config_name}] to [#{environment}] environment"
+      exit
     end
+
+    if result == :new
+      say "Creating new config for [#{config_name}] in [#{environment}] environment"
+    elsif result == :existing
+      say "Adding new keys #{changed_keys} to config [#{config_name}] in [#{environment}] environment"
+    elsif result == :overwritten
+      say "Overwriting existing config [#{config_name}] in [#{environment}] environment"
+    end
+
+    updated_config = config_set.read_config(config_name)[ApigeeCli::ConfigSet::ENTRY_KEY]
+
+    render_config(config_name, updated_config, changed_keys)
   end
 
   desc 'delete', 'Delete keyvaluemaps for [config_name] from Apigee server'
-  option :config_name, type: :string, default: DEFAULT_CONFIG_NAME
+  option :config_name, type: :string, default: ApigeeCli::ConfigSet::DEFAULT_CONFIG_NAME
   option :entry_name, type: :string
   def delete
     config_name = options[:config_name]
@@ -64,12 +60,12 @@ class AppConfig < ThorCli
 
     if entry_name
       confirm = yes? "Are you sure you want to delete #{entry_name} from #{config_name} in #{environment} environment? [y/n]"
-      return if !confirm
+      exit if !confirm
 
       remove_entry(config_set, config_name, entry_name)
     else
       confirm = yes? "Are you sure you want to delete #{config_name} from #{environment} environment? [y/n]"
-      return if !confirm
+      exit if !confirm
 
       remove_config(config_set, config_name)
     end
@@ -78,24 +74,18 @@ class AppConfig < ThorCli
   private
 
     def pull_list(config_set)
-      response = Hashie::Mash.new(config_set.list_configs)
-      render_list(response[MAP_KEY])
-    end
-
-    def pull_config(config_set, config_name)
       begin
-        response = Hashie::Mash.new(config_set.read_config(config_name))
-        render_config(config_name, response[ENTRY_KEY])
+        response = Hashie::Mash.new(config_set.list_configs)
+        render_list(response[ApigeeCli::ConfigSet::MAP_KEY])
       rescue RuntimeError => e
         render_error(e)
       end
     end
 
-    def update_config(config_set, config_name, data)
+    def pull_config(config_set, config_name)
       begin
-        changed_keys = data.map { |kv| kv[:name] }
-        response = Hashie::Mash.new(config_set.update_config(config_name, data))
-        render_config(config_name, response[ENTRY_KEY], changed_keys)
+        response = Hashie::Mash.new(config_set.read_config(config_name))
+        render_config(config_name, response[ApigeeCli::ConfigSet::ENTRY_KEY])
       rescue RuntimeError => e
         render_error(e)
       end
@@ -104,8 +94,7 @@ class AppConfig < ThorCli
     def remove_config(config_set, config_name)
       begin
         response = Hashie::Mash.new(config_set.remove_config(config_name))
-        say "Config #{config_name} has been deleted from #{environment} environment", :red
-        render_config(config_name, response[ENTRY_KEY])
+        say "Config [#{config_name}] has been deleted from [#{environment}] environment", :red
       rescue RuntimeError => e
         render_error(e)
       end
@@ -114,27 +103,24 @@ class AppConfig < ThorCli
     def remove_entry(config_set, config_name, entry_name)
       begin
         response = Hashie::Mash.new(config_set.remove_entry(config_name, entry_name))
-        say "Entry #{entry_name} has been deleted from #{config_name} in #{environment} environment", :red
-        render_entry(response)
+        say "Entry [#{entry_name}] has been deleted from [#{config_name}] in [#{environment}] environment", :red
       rescue RuntimeError => e
         render_error(e)
       end
     end
 
-    def populate_data(orig_keys, entries, overwrite)
+    def populate_data(entries)
       entries.each_with_object([]) do |entry, data|
         name  = entry.split("=", 2).first
         value = entry.split("=", 2).last
 
-        next if !overwrite && orig_keys.include?(name)
-
-        data << { name: name, value: value }
+        data << Hashie::Mash.new({ name: name, value: value })
       end
     end
 
     def render_list(configs)
       configs.each do |config|
-        render_config(config['name'], config[ENTRY_KEY])
+        render_config(config['name'], config[ApigeeCli::ConfigSet::ENTRY_KEY])
       end
     end
 

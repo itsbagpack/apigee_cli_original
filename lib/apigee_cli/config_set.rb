@@ -1,19 +1,9 @@
 module ApigeeCli
   class ConfigSet < Base
 
-    class << self
-      def parse_filename(config_filename)
-        filename_parts = config_filename.gsub(/.json$/,'').split('_')
-
-        OpenStruct.new(
-          {
-            filename: config_filename,
-            environment: filename_parts.last,
-            name: filename_parts.slice(0, filename_parts.length - 1).join('_')
-          }
-        )
-      end
-    end
+    MAP_KEY             = 'keyValueMap'
+    ENTRY_KEY           = 'entry'
+    DEFAULT_CONFIG_NAME = 'configuration'
 
     def base_url
       "https://api.enterprise.apigee.com/v1/o/#{org}/environments/#{environment}/keyvaluemaps"
@@ -64,6 +54,35 @@ module ApigeeCli
       else
         JSON.parse(response.body)
       end
+    end
+
+    def add_config(config_name, data, overwrite)
+      changed_keys = []
+
+      begin
+        response = Hashie::Mash.new(read_config(config_name))
+        if overwrite
+          result = :overwritten
+        else
+          orig_keys = response[ENTRY_KEY].map(&:name)
+          data.reject! { |pair| orig_keys.include?(pair['name']) }
+
+          result = :existing
+        end
+
+        update_config(config_name, data)
+      rescue RuntimeError => e
+        if e.message.include?('keyvaluemap_doesnt_exist')
+          result = :new
+          write_config(config_name, data)
+        else
+          changed_keys = [e.to_s]
+          result = :error
+        end
+      end
+
+      changed_keys = data.map(&:name)
+      [result, changed_keys]
     end
 
     def remove_config(config_name)

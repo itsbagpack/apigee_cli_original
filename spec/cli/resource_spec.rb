@@ -82,13 +82,16 @@ describe Resource do
     end
 
     context 'when user gives permission to delete the file' do
+      before do
+        allow_any_instance_of(ShellRecorder).to receive(:yes?).and_return true
+      end
+
       it 'deletes the file if it exists' do
         resource = Resource.new([], name: 'test3.js')
         resource.shell = ShellRecorder.new
         allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:remove)
           .with('test3.js', 'jsc')
           .and_return("Deleted")
-        allow(resource.shell).to receive(:yes?).and_return(true)
 
         resource.invoke(:delete)
 
@@ -101,7 +104,6 @@ describe Resource do
         resource = Resource.new([], name: 'test3.js')
         resource.shell = ShellRecorder.new
         allow_any_instance_of(ApigeeCli::ResourceFile).to receive(:remove).and_raise("Resource already exists")
-        allow(resource.shell).to receive(:yes?).and_return(true)
 
         expect {
           resource.invoke(:delete)
@@ -112,14 +114,19 @@ describe Resource do
     end
 
     context 'when user doesn\'t give permission to delete the file' do
+      before do
+        allow_any_instance_of(ShellRecorder).to receive(:yes?).and_return false
+      end
+
       it 'doesn\'t delete the file' do
         resource = Resource.new([], name: 'test3.js')
         resource.shell = ShellRecorder.new
-        allow(resource.shell).to receive(:yes?).and_return(false)
 
         expect_any_instance_of(ApigeeCli::ResourceFile).to_not receive(:remove)
 
-        resource.invoke(:delete)
+        expect {
+          resource.invoke(:delete)
+        }.to raise_error SystemExit
       end
     end
   end

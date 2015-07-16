@@ -1,5 +1,9 @@
 module ApigeeCli
   class ResourceFile < Base
+
+    RESOURCE_FILE_KEY = 'resourceFile'
+    DEFAULT_RESOURCE_TYPE = 'jsc'
+
     def base_url
       "https://api.enterprise.apigee.com/v1/organizations/#{org}/resourcefiles"
     end

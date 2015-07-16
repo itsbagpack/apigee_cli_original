@@ -4,9 +4,6 @@ class Resource < ThorCli
   namespace 'resource'
   default_task :list
 
-  RESOURCE_FILE_KEY = 'resourceFile'
-  DEFAULT_RESOURCE_TYPE = 'jsc'
-
   desc 'list', 'List resource files'
   option :name, type: :string
   def list
@@ -15,7 +12,7 @@ class Resource < ThorCli
     resource = ApigeeCli::ResourceFile.new(environment)
 
     if name
-      response = resource.read(name, DEFAULT_RESOURCE_TYPE)
+      response = resource.read(name, ApigeeCli::ResourceFile::DEFAULT_RESOURCE_TYPE)
       say response
     else
       pull_list(resource)
@@ -32,7 +29,7 @@ class Resource < ThorCli
     resource = ApigeeCli::ResourceFile.new(environment)
 
     files.each do |file|
-      result = resource.upload file, DEFAULT_RESOURCE_TYPE, "jsc/#{file}"
+      result = resource.upload file, ApigeeCli::ResourceFile::DEFAULT_RESOURCE_TYPE, "jsc/#{file}"
       if result == :overwritten
         say "Deleting current resource for #{file}", :red
       elsif result == :new_file
@@ -53,11 +50,13 @@ class Resource < ThorCli
     if confirm
       begin
         say "Deleting current resource for #{name}", :red
-        resource.remove(name, DEFAULT_RESOURCE_TYPE)
+        resource.remove(name, ApigeeCli::ResourceFile::DEFAULT_RESOURCE_TYPE)
       rescue RuntimeError => e
         render_error(e)
         exit
       end
+    else
+      exit
     end
   end
 
@@ -65,7 +64,7 @@ class Resource < ThorCli
 
     def pull_list(resource)
       response = Hashie::Mash.new(resource.all)
-      render_list(response[RESOURCE_FILE_KEY])
+      render_list(response[ApigeeCli::ResourceFile::RESOURCE_FILE_KEY])
     end
 
     def render_list(resource_files)
