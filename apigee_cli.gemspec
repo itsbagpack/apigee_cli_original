@@ -6,8 +6,8 @@ require 'apigee_cli/version'
 Gem::Specification.new do |spec|
   spec.name          = "apigee_cli"
   spec.version       = ApigeeCli::VERSION
-  spec.authors       = ["Darby Frey"]
-  spec.email         = ["darbyfrey@gmail.com"]
+  spec.authors       = ["Darby Frey", "Yumin Wong"]
+  spec.email         = ["darbyfrey@gmail.com", "wongyumin@gmail.com"]
   spec.summary       = %q{A CLI for Apigee}
   spec.description   = %q{A CLI for Apigee}
   spec.homepage      = ""
