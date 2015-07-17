@@ -30,10 +30,6 @@ describe ApigeeCli::ConfigSet do
     }
   }
 
-  # TODO: remove this, it may not be needed
-  xdescribe '.parse_filename' do
-  end
-
   describe '#base_url' do
     it 'points to Apigee\'s keyvaluemaps endpoint' do
       expect(config_set.base_url).to eq base_url
