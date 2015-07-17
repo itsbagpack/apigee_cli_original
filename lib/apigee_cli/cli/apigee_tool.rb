@@ -41,10 +41,10 @@ class ApigeeTool < ThorCli
     say `apigeetool fetchproxy -u #{@username} -p #{@password} -o #{@org} -e #{@env} #{args.join(' ')}`
   end
 
-  desc 'deleteproxy', 'Delete a proxy or node app'
+  desc 'delete', 'Delete a proxy or node app'
   def deleteproxy(*args)
     load_config
-    say `apigeetool deleteproxy -u #{@username} -p #{@password} -o #{@org} -e #{@env} #{args.join(' ')}`
+    say `apigeetool delete -u #{@username} -p #{@password} -o #{@org} -e #{@env} #{args.join(' ')}`
   end
 
   desc 'getlogs', 'Retrieve the last set of logs from a Node app'
