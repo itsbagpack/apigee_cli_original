@@ -50,13 +50,13 @@ module ApigeeCli
     end
 
     def upload(name, resource_type, file)
-      if read(file, resource_type)
+      if read(name, resource_type)
         result = :overwritten
-        remove(file, resource_type)
+        remove(name, resource_type)
       else
         result = :new_file
       end
-      create(file, resource_type, file)
+      create(name, resource_type, file)
       result
     end
 
