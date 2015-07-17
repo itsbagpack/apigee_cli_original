@@ -31,7 +31,7 @@ class Resource < ThorCli
     files.each do |file|
       result = resource.upload file, ApigeeCli::ResourceFile::DEFAULT_RESOURCE_TYPE, "jsc/#{file}"
       if result == :overwritten
-        say "Deleting current resource for #{file}", :red
+        say "Overwriting current resource for #{file}", :green
       elsif result == :new_file
         say "Creating resource for #{file}", :green
       end
