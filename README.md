@@ -20,12 +20,13 @@ Or install it yourself as:
 
 ### Top level commands
 
-    Commands:
-      apigee apigeetool [COMMAND]  # Run a command using the apigeetool Node.js module
-      apigee config [COMMAND]      # Run a command within the context of an app configuration
-      apigee help [COMMAND]        # Describe available commands or one specific command
-      apigee settings              # Show the current apigeerc settings
-      apigee version               # Shows the Apigee CLI version number
+  Commands:
+    apigee apigeetool [COMMAND]  # Run a command using the apigeetool Node.js module
+    apigee config [COMMAND]      # Run a command within the context of an app configuration
+    apigee help [COMMAND]        # Describe available commands or one specific command
+    apigee resource [COMMAND]    # Run a command within the context of a resource
+    apigee settings              # Show the current apigeerc settings
+    apigee version               # Shows the Apigee CLI version number
 
 ### To see sublevel commands, you can run:
 
@@ -33,30 +34,78 @@ Or install it yourself as:
     apigee help config
     apigee help resource
 
-## Usage
+### Usage
 
-### Configuration Settings on Apigee Server
+A. Deployment (leverages apigeetool Node.js module)
 
-## apigee config list
+#### apigee apigeetool listdeployments [DEFAULT]
+
+    # by environment
+    $ apigee apigeetool listdeployments -e=ENVIRONMENT
+
+    # by proxy name
+    $ apigee apigeetool listdeployments -n PROXY_NAME
+
+#### apigee apigeetool deploy
+
+    $ apigee apigeetool deploy -e=ENVIRONMENT -n PROXY_NAME -d ROOT_DIR_OF_PROXY -V
+
+#### apigee apigeetool nodedeploy
+
+    $ apigee apigeetool nodedeploy -e=ENVIRONMENT -n NODE_PROXY_NAME -d ROOT_DIR_OF_NODE_PROXY -m MAIN_JS_FILE -b BASE_PATH -v secure
+
+#### apigee apigeetool undeploy
+
+    $ apigee apigeetool undeploy -e=ENVIRONMENT -n PROXY_NAME -D
+
+#### apigee apigeetool fetchproxy
+
+    $ apigee apigeetool fetchproxy -n PROXY_NAME -r REVISION_NUMBER
+
+#### apigee apigeetool delete
+
+NOTE: This deletes all revisions of PROXY_NAME. It is an error to delete a proxy that still has deployed revisions. Revisions must be undeployed using "undeploy" before this command may be used.
+
+    $ apigee apigeetool delete -n PROXY_NAME
+
+#### apigee apigeetool getlogs [from a Node app]
+
+    $ apigee apigeetool getlogs -e=ENVIRONMENT -n NODE_PROXY_NAME
+
+
+B. Configuration Settings on Apigee Server
+
+#### apigee config list [DEFAULT]
+
+    # defaults
+    -e=test|--environment=test
 
     # List configs for default environment of test
     $ apigee config list
 
-    # List config for a particular config_name in an environment
-    $ apigee config list [--environment=staging|-e=staging] [--config_name=configuration_one]
+    # List config for a particular config_name
+    $ apigee config list --config_name=configuration_one
 
-## apigee config push
+#### apigee config push
+
+    # defaults
+    -e=test|--environment=test
+    --config_name=configuration
 
     # Create config key-value map
     $ apigee config push --config_name=new_config
 
-    # Update config key-value pair (default environment is test, default config_name is configuration)
+    # Update config key-value pair
     $ apigee config push key_one=value_one
 
     # Overwrite existing config key-value pair
-    $ apigee config push key_one=changed_value_one --overwrite=true [--environment=staging|-e=staging] [--config_name=configuration_one]
+    $ apigee config push key_one=changed_value_one --overwrite=true
 
-## apigee config delete
+#### apigee config delete
+
+    # defaults
+    -e=test|--environment=test
+    --config_name=configuration
 
     # Delete config key-value pair (default config_name is configuration)
     $ apigee config delete --entry_name=key_one
@@ -64,25 +113,26 @@ Or install it yourself as:
     # Delete config for that config_name
     $ apigee config delete --config_name=configuration_one
 
-### Resource Files on Apigee Server
 
-## apigee resource list
+C. Resource Files on Apigee Server
+
+#### apigee resource list [DEFAULT]
 
     # List resource files for organization
     $ apigee resource list
 
     # Get resource file with resource_name
-    $ apigee resource list --resource_name=testing.js
+    $ apigee resource list --name=testing.js
 
-## apigee resource upload
+#### apigee resource upload
 
-    # Upload resource files from resource_folder (default is ~/.apigee_resources)
-    $ apigee resource upload --resource_folder=jsc
+    # Upload resource files from resource_folder
+    $ apigee resource upload --folder=jsc
 
-## apigee resource delete
+#### apigee resource delete
 
     # Delete resource file of resource_name
-    $ apigee resource delete --resource_name=testing.js
+    $ apigee resource delete --name=testing.js
 
 ## Contributing
 
