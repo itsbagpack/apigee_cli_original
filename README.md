@@ -16,17 +16,26 @@ Or install it yourself as:
 
     $ gem install apigee_cli
 
+## Setting up your User Credentials
+
+Assuming you have an Apigee account, set your user credentials in ~/.apigeerc:
+
+    org: APIGEE_ORG
+    username: APIGEE_USERNAME
+    password: APIGEE_PASSWORD
+    environment: ENVIRONMENT
+
 ## Commands
 
 ### Top level commands
 
-  Commands:
-    apigee apigeetool [COMMAND]  # Run a command using the apigeetool Node.js module
-    apigee config [COMMAND]      # Run a command within the context of an app configuration
-    apigee help [COMMAND]        # Describe available commands or one specific command
-    apigee resource [COMMAND]    # Run a command within the context of a resource
-    apigee settings              # Show the current apigeerc settings
-    apigee version               # Shows the Apigee CLI version number
+    Commands:
+      apigee apigeetool [COMMAND]  # Run a command using the apigeetool Node.js module
+      apigee config [COMMAND]      # Run a command within the context of an app configuration
+      apigee help [COMMAND]        # Describe available commands or one specific command
+      apigee resource [COMMAND]    # Run a command within the context of a resource
+      apigee settings              # Show the current apigeerc settings
+      apigee version               # Shows the Apigee CLI version number
 
 ### To see sublevel commands, you can run:
 
